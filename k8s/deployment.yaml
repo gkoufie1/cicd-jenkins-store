@@ -42,7 +42,7 @@ spec:
         - name: storetrack
           # Placeholder tag — the Jenkins pipeline updates this in-place with
           # `kubectl set image` using the built commit SHA. See ../Jenkinsfile.
-          image: registry.example.com/storetrack:latest
+          image: gkoufie/storetrack:latest
           imagePullPolicy: Always
           ports:
             - name: http
