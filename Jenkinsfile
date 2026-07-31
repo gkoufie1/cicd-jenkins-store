@@ -17,7 +17,6 @@ pipeline {
     environment {
         REGISTRY        = 'registry.example.com'
         IMAGE_NAME      = "${REGISTRY}/storetrack"
-        IMAGE_TAG       = "${env.GIT_COMMIT.take(7)}"
         K8S_NAMESPACE   = 'storetrack'
         K8S_DEPLOYMENT  = 'storetrack'
         K8S_CONTAINER   = 'storetrack'
@@ -27,6 +26,12 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                // The top-level environment{} block above is evaluated before
+                // any stage runs, so env.GIT_COMMIT isn't populated yet at
+                // that point. Compute the tag here, after checkout, instead.
+                script {
+                    env.IMAGE_TAG = sh(script: 'git rev-parse --short=7 HEAD', returnStdout: true).trim()
+                }
             }
         }
 
