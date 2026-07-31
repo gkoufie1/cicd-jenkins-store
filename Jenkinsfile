@@ -2,7 +2,7 @@
 //   - Plugins: Docker Pipeline, SonarQube Scanner, Kubernetes CLI (or kubectl on PATH)
 //   - Global Tool Config: a "SonarScanner" tool, and a "SonarQube" server entry
 //   - Credentials:
-//       docker-registry-credentials  (username/password or token for REGISTRY)
+//       docker-registry-credentials  (Docker Hub username + access token)
 //       k8s-kubeconfig               (secret file: kubeconfig for the target cluster)
 //   - An agent with Docker available (docker.build/withRegistry need the daemon)
 pipeline {
@@ -15,11 +15,14 @@ pipeline {
     }
 
     environment {
-        REGISTRY        = 'registry.example.com'
-        IMAGE_NAME      = "${REGISTRY}/storetrack"
-        K8S_NAMESPACE   = 'storetrack'
-        K8S_DEPLOYMENT  = 'storetrack'
-        K8S_CONTAINER   = 'storetrack'
+        // Docker Hub: images are pushed as "<dockerhub-username>/<repo>"
+        // with no registry hostname prefix (unlike a private/self-hosted
+        // registry, where IMAGE_NAME would be "${REGISTRY}/storetrack").
+        DOCKERHUB_REGISTRY = 'https://registry.hub.docker.com'
+        IMAGE_NAME          = 'gkoufie/storetrack'
+        K8S_NAMESPACE       = 'storetrack'
+        K8S_DEPLOYMENT      = 'storetrack'
+        K8S_CONTAINER       = 'storetrack'
     }
 
     stages {
@@ -106,7 +109,7 @@ pipeline {
             when { expression { env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' } }
             steps {
                 script {
-                    docker.withRegistry("https://${REGISTRY}", 'docker-registry-credentials') {
+                    docker.withRegistry(DOCKERHUB_REGISTRY, 'docker-registry-credentials') {
                         def image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                         image.push()
                         image.push('latest')
