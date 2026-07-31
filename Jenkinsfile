@@ -38,7 +38,12 @@ pipeline {
         stage('Install') {
             steps {
                 script {
-                    docker.image('node:20-bookworm-slim').inside {
+                    // Docker Pipeline runs this container as the host's
+                    // jenkins UID (so workspace files come out correctly
+                    // owned), but that UID has no /etc/passwd entry in the
+                    // node image, so $HOME defaults to "/" and npm can't
+                    // create /.npm there (EACCES). Give it a writable HOME.
+                    docker.image('node:20-bookworm-slim').inside('-e HOME=/tmp') {
                         sh 'npm ci'
                     }
                 }
@@ -48,7 +53,7 @@ pipeline {
         stage('Lint') {
             steps {
                 script {
-                    docker.image('node:20-bookworm-slim').inside {
+                    docker.image('node:20-bookworm-slim').inside('-e HOME=/tmp') {
                         sh 'npm run lint'
                     }
                 }
@@ -58,7 +63,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image('node:20-bookworm-slim').inside {
+                    docker.image('node:20-bookworm-slim').inside('-e HOME=/tmp') {
                         sh 'npm test'
                     }
                 }
@@ -68,7 +73,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.image('node:20-bookworm-slim').inside {
+                    docker.image('node:20-bookworm-slim').inside('-e HOME=/tmp') {
                         sh 'npm run build'
                     }
                 }
