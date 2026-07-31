@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: storetrack
+  namespace: storetrack
+  labels:
+    app.kubernetes.io/name: storetrack
+  annotations:
+    # Assumes an nginx-ingress controller and cert-manager ClusterIssuer
+    # named "letsencrypt-prod". Adjust to match your cluster's ingress
+    # controller and certificate issuer.
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1m"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - storetrack.example.com
+      secretName: storetrack-tls
+  rules:
+    - host: storetrack.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: storetrack
+                port:
+                  name: http

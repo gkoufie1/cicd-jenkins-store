@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storetrack-config
+  namespace: storetrack
+  labels:
+    app.kubernetes.io/name: storetrack
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  # Only ever set to "true" temporarily and intentionally; the app also
+  # refuses this endpoint outside production regardless of this flag.
+  ALLOW_DEMO_SEED: "false"
