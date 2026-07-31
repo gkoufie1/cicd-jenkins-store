@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose, { HydratedDocument, Model, Schema } from 'mongoose';
-import { createServer as createViteServer } from 'vite';
 
 dotenv.config();
 
@@ -572,6 +571,11 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
 async function startServer() {
   await initDatabase();
   if (!isProduction) {
+    // Dynamic import so 'vite' is never require()'d in production -- it can
+    // then be a devDependency instead of shipping (and its transitive
+    // native-binary optional dependencies, e.g. rollup's platform package)
+    // into the production image.
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
     app.use(vite.middlewares);
   } else {
