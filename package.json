@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit && eslint .",
-    "test": "cross-env NODE_ENV=test ADMIN_USERNAME=admin ADMIN_PASSWORD=test-password tsx --test \"tests/**/*.test.ts\"",
+    "test": "cross-env NODE_ENV=test ADMIN_USERNAME=admin ADMIN_PASSWORD=test-password tsx --test tests/health.test.ts tests/auth.test.ts tests/inventory.test.ts",
     "check": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
