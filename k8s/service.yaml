@@ -6,11 +6,15 @@ metadata:
   labels:
     app.kubernetes.io/name: storetrack
 spec:
-  type: ClusterIP
+  # NodePort for now (no domain name / ingress controller set up yet) --
+  # reachable at http://<node-public-ip>:30080. Switch to ClusterIP + an
+  # Ingress once there's a real hostname and TLS in front of this.
+  type: NodePort
   selector:
     app.kubernetes.io/name: storetrack
   ports:
     - name: http
       port: 80
       targetPort: http
+      nodePort: 30080
       protocol: TCP
