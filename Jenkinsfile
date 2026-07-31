@@ -100,7 +100,10 @@ pipeline {
         }
 
         stage('Docker Build & Push') {
-            when { branch 'main' }
+            // env.BRANCH_NAME is only populated by Multibranch Pipeline jobs.
+            // This is a plain "Pipeline script from SCM" job, so gate on
+            // GIT_BRANCH instead, which the Git plugin sets either way.
+            when { expression { env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' } }
             steps {
                 script {
                     docker.withRegistry("https://${REGISTRY}", 'docker-registry-credentials') {
@@ -113,7 +116,7 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            when { branch 'main' }
+            when { expression { env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main' } }
             steps {
                 withCredentials([file(credentialsId: 'k8s-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh """
