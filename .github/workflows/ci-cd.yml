@@ -1,10 +1,7 @@
 name: StoreTrack CI/CD
 
 on:
-  push:
-    branches: ['**']
-  pull_request:
-    branches: [main]
+  workflow_dispatch: {}
 
 # Mirrors Jenkins' disableConcurrentBuilds(): only one run per branch at a
 # time, later pushes queue instead of running alongside an in-flight one.
@@ -81,7 +78,7 @@ jobs:
   docker-build-push:
     name: Docker Build & Push
     needs: sonarqube
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.vars.outputs.tag }}
@@ -105,7 +102,7 @@ jobs:
   deploy:
     name: Deploy to Kubernetes
     needs: docker-build-push
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Set up kubectl
