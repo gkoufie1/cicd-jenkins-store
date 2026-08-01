@@ -1,0 +1,29 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: storetrack
+  region: us-east-1
+
+# No NAT Gateway: nodes sit in public subnets with public IPs. This is the
+# single biggest cost lever for a low-traffic cluster (a NAT Gateway alone
+# runs ~$32/mo + data processing, more than the node itself).
+vpc:
+  nat:
+    gateway: Disable
+
+managedNodeGroups:
+  - name: storetrack-ng
+    instanceType: t3.small
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 1
+    privateNetworking: false
+    volumeSize: 20
+    labels:
+      role: worker
+
+addons:
+  - name: vpc-cni
+  - name: kube-proxy
+  - name: coredns
